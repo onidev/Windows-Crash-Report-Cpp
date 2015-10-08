@@ -23,7 +23,6 @@ An alternative solution consists of doing this automaticaly, and retrieve the cr
 You need a server with sql support.
 
 1. Create a sql table:
-
 ![alt tag](https://cloud.githubusercontent.com/assets/10281739/10381038/1260d87e-6e18-11e5-838d-33e34e5d3211.png)
 
 2. Add the php script on your server.
