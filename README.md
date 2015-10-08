@@ -32,6 +32,8 @@ od::Http::callUrl("http://mysite.com/crash_report.php?version=" + version.asStri
 
 
 It remains for you to just find crash on your program from the offset.
-For this, if you use gcc, you can generate a .map file with all functions/methods offsets: -Wl,-Map,file.map
+For this, if you use gcc, you can generate a .map file with all functions/methods offsets:
+-Wl,-Map,file.map
+
 Think of generate all map files of your releases.
 
