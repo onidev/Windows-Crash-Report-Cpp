@@ -1,39 +1,31 @@
 # Windows-Crash-Report-Cpp
-Allows you to get new windows crash logs automatically and send version/offset to an external database
+This library automatically grabs newly occurred Windows crash logs and sends the version/offset to an external online database for you to review.
 
-When a user have a crash, you need to get the offset crash for find the bug and get your support.
+When a crash occurs on the user side, it is crucial for you to know the crash offset value in order to find the bug and provide support.
 
-For this, there are multiple solutions.
-The user clic on the details of the crash window and copy the offset and gives you.
+There are several ways of achieving this. For instance, the user can click on the crash windows details button and copy the offset value for you.
 
 ![alt tag](https://cloud.githubusercontent.com/assets/10281739/10380884/f1a88c40-6e16-11e5-8f6b-bb3275ea03da.png)
 
 ![alt tag](https://cloud.githubusercontent.com/assets/10281739/10380889/f706f528-6e16-11e5-8dfa-7002ba57333c.png)
 
-If the user closes the window, it's always possible to get the crash log.
-He need to go to the 'Event Viewer' with widows+R => eventvwr
-and find the wanted log in the list, open it, get the log and gives you.
+In the case where the user closes the crash window, it is still possible to grab the crash log. The standard procedure is for the user to open the "Event Viewer" (Windows+R > eventvwr), look for the specific log in the list, open it and copy the offset value for you.
 
 ![alt tag](https://cloud.githubusercontent.com/assets/10281739/10380887/f6f04f62-6e16-11e5-9fd5-039f1fefb8b0.png)
 
-This two solutions are manual and annoying for users and developpers.
+These two approaches involve manual control and are annoying for both users and developers.
 
-
-An alternative solution consists of doing this automaticaly, and retrieve the crash report on your server.
-You need a server with sql support.
+Our alternative approach consists of performing the crash lookup automatically and will save the crash report on your server. You'll need a server with SQL support.
 
 1. Create a sql table:
 ![alt tag](https://cloud.githubusercontent.com/assets/10281739/10381038/1260d87e-6e18-11e5-838d-33e34e5d3211.png)
 
-2. Add the php script on your server.
+2.Upload the PHP script on your server.
 
-3. Use the evlog lib (in the lib folder) and send new changes to your php script:
+3. Use the evlog lib (in the lib folder) and adapt your PHP script accordingly: 
 od::Http::callUrl("http://mysite.com/crash_report.php?version=" + version.asString() + "&error=" + to_string(error), 3000);
 
+All that's left for you is to look up the received crash offset value and find the origin of the bug in your application. To achieve this, using gcc, you can generate a .map file containing all functions/methods offsets: -Wl,-Map,file.map
 
-It remains for you to just find crash on your program from the offset.
-For this, if you use gcc, you can generate a .map file with all functions/methods offsets:
--Wl,-Map,file.map
-
-Think of generate all map files of your releases.
+It is good practice to generate map files for each of your releases.
 
