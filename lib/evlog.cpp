@@ -145,6 +145,7 @@ void CrashReportWindows::dumpRecords(const std::vector<char>& buffer)
             if(crash.program == _app_name && set.find(err) == set.end())
             {
                 _new_errors.push_back(err);
+                set.insert(err);
             }
         }
         ptr++;
