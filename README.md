@@ -23,7 +23,7 @@ Our alternative approach consists of performing the crash lookup automatically a
 2.Upload the PHP script on your server.
 
 3. Use the evlog lib (in the lib folder) and adapt your PHP script accordingly: 
-od::Http::callUrl("http://mysite.com/crash_report.php?version=" + version.asString() + "&error=" + to_string(error), 3000);
+od::Http::callUrl("http://mysite.com/crash_report.php?version=" + version.asString() + "&error=" + to_string(offset), 3000);
 
 All that's left for you is to look up the received crash offset value and find the origin of the bug in your application. To achieve this, using gcc, you can generate a .map file containing all functions/methods offsets: -Wl,-Map,file.map
 
