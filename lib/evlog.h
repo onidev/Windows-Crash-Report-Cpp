@@ -48,7 +48,6 @@ struct Crash
     std::string error_from;
     Version     version_dep;
     unsigned    offset;
-    std::string log;
 };
 
 struct Error
