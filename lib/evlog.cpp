@@ -1,6 +1,7 @@
 #include "evlog.h"
 #include <set>
 #include <cstdio>
+#include <iostream>
 #include <windows.h>
 
 namespace evlog
@@ -64,45 +65,56 @@ CrashReportWindows::~CrashReportWindows()
     }
 }
 
-bool CrashReportWindows::parseLogs(unsigned buffer_size)
+bool CrashReportWindows::parseLogs(unsigned nb_records_max)
 {
     HANDLE handle = OpenEventLog(NULL, "Application");
     if(handle)
     {
-        std::vector<char> buffer(buffer_size);
-        DWORD read;
-        DWORD needed;
-        DWORD status = ERROR_SUCCESS;
+        DWORD number_of_records, first_record;
+        GetNumberOfEventLogRecords(handle, &number_of_records);
+        GetOldestEventLogRecord(handle, &first_record);
         
-        while(status == ERROR_SUCCESS)
+        int nb_processed = 0;
+        int i;
+        if(nb_records_max == 0)
+            i = first_record;
+        else
+            i = first_record + number_of_records - nb_records_max;
+        while(i<first_record + number_of_records)
         {
-            if(!ReadEventLog(handle, EVENTLOG_SEQUENTIAL_READ | EVENTLOG_BACKWARDS_READ, 0, &buffer[0], buffer_size, &read, &needed))
+            DWORD bytes_to_read = 20 * 1024;
+            DWORD bytes_read = 0;
+            DWORD min_bytes_to_read = 0;
+            
+            std::vector<char> buffer(bytes_to_read);
+            
+            int ret = ReadEventLog(handle, EVENTLOG_SEEK_READ | EVENTLOG_FORWARDS_READ, i, &buffer[0], bytes_to_read, &bytes_read, &min_bytes_to_read);
+            if(!ret)
             {
-                status = GetLastError();
-                if(status == ERROR_INSUFFICIENT_BUFFER)
-                {
-                    return false; // Not enough memory
-                }
-                else 
-                {
-                    if(status != ERROR_HANDLE_EOF)
-                    {
-                        // @todo
-                    }
-                }
+                return false;
             }
+            unsigned count = dumpRecords(buffer);
+            nb_processed += count;
+            
+            if(count == 0)
+                i++;
             else
-            {
-                dumpRecords(buffer);
+                i += count;
+            
+            if(nb_records_max != 0 && nb_processed >= nb_records_max)
                 break;
-            }
         }
+        
         CloseEventLog(handle);
+    }
+    else
+    {
+        return false;
     }
     return true;
 }
 
-void CrashReportWindows::dumpRecords(const std::vector<char>& buffer)
+unsigned CrashReportWindows::dumpRecords(const std::vector<char>& buffer)
 {
     const char* ptr = &buffer[0];
     const char* end = ptr + buffer.size();
@@ -120,12 +132,14 @@ void CrashReportWindows::dumpRecords(const std::vector<char>& buffer)
     
     std::set<Error> set(_processed.begin(), _processed.end());
     
+    unsigned count = 0;
+    int meuh = 0;
     while(ptr < end)
     {
         if(strncmp("Application Error", ptr, 17) == 0)
         {
-            // always: 41 70 70 6c 69 63 61 74 69 6f 6e 20 45 72 72 6f 72 0 (?)
-            ptr += 18;
+            const char* ptr2 = ptr - 40;
+            ptr += 18; // Skip "Application Error" string
             
             Crash crash;
             crash.computer    = readString();
@@ -135,12 +149,17 @@ void CrashReportWindows::dumpRecords(const std::vector<char>& buffer)
             crash.version_dep = readString();
             crash.offset      = strtoul(readString().c_str(), nullptr, 16);
             
-            std::string log   = readString();
+            std::string log   = readString(); // on windows xp this is the log - on other the timestamp
             
-            // > win7: the offset is on the log
-            if(log.size() <= 10)
+            if(log.size() <= 10) // windows vista(?), 7, 8, 10
             {
-                crash.offset = strtoul(log.c_str(), nullptr, 16);
+                crash.timestamp = strtoul(log.c_str(), nullptr, 16);
+                readString(); // Exception code
+                crash.offset = strtoul(readString().c_str(), nullptr, 16);
+            }
+            else // win xp
+            {
+                crash.timestamp = ptr2[0]<<24 | ptr2[1]<<16 | ptr2[2]<<8 | ptr2[3];
             }
             
             _logs.push_back(crash);
@@ -151,9 +170,12 @@ void CrashReportWindows::dumpRecords(const std::vector<char>& buffer)
                 _new_errors.push_back(err);
                 set.insert(err);
             }
+            
+            count++;
         }
         ptr++;
     }
+    return count;
 }
 
 }
