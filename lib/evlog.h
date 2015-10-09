@@ -48,6 +48,7 @@ struct Crash
     std::string error_from;
     Version     version_dep;
     unsigned    offset;
+    unsigned    timestamp;
 };
 
 struct Error
@@ -67,13 +68,13 @@ class CrashReportWindows
     std::vector<Error> _processed;
     std::vector<Error> _new_errors;
     
-    void dumpRecords(const std::vector<char>& buffer);
+    unsigned dumpRecords(const std::vector<char>& buffer);
     
 public:
     CrashReportWindows(const std::string& fname, const std::string& app_name);
     ~CrashReportWindows();
     
-    bool parseLogs(unsigned buffer_size = 0x10000);
+    bool parseLogs(unsigned nb_records_max = 0);
     
     const std::vector<Crash>& logs() const { return _logs; }
     const std::vector<Error>& newErrors() const { return _new_errors; }
