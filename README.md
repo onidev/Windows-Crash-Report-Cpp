@@ -20,7 +20,7 @@ Our alternative approach consists of performing the crash lookup automatically a
 1. Create a sql table:
 ![alt tag](https://cloud.githubusercontent.com/assets/10281739/10381038/1260d87e-6e18-11e5-838d-33e34e5d3211.png)
 
-2.Upload the PHP script on your server.
+2. Upload the PHP script on your server.
 
 3. Use the evlog lib (in the lib folder) and adapt your PHP script accordingly: 
 ```C++
