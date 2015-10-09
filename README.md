@@ -1,5 +1,5 @@
 # Windows-Crash-Report-Cpp
-This library automatically grabs newly occurred Windows crash logs and sends the version/offset to an external online database for you to review (only for win xp/vista/7 for the moment).
+This library automatically grabs newly occurred Windows crash logs and sends the version/offset to an external online database for you to review.
 
 When a crash occurs on the user side, it is crucial for you to know the crash offset value in order to find the bug and provide support.
 
