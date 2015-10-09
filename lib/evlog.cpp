@@ -134,10 +134,14 @@ void CrashReportWindows::dumpRecords(const std::vector<char>& buffer)
             crash.error_from  = readString();
             crash.version_dep = readString();
             crash.offset      = strtoul(readString().c_str(), nullptr, 16);
-            crash.log         = readString();
             
-            while(crash.log.back() == '\n')
-                crash.log.pop_back();
+            std::string log   = readString();
+            
+            // > win7: the offset is on the log
+            if(log.size() <= 10)
+            {
+                crash.offset = strtoul(log.c_str(), nullptr, 16);
+            }
             
             _logs.push_back(crash);
             
