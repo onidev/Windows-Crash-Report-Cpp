@@ -7,7 +7,7 @@ int main()
     using namespace std;
     
     CrashReportWindows report("crash_logs.bin", "PlanetCentauri.exe");
-    report.parseLogs(20);
+    report.parseLogs(20); // the 20 last logs
     
     cout << "Captured logs: " << report.logs().size() << '\n';
     
